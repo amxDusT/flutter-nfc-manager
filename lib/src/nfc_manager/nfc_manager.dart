@@ -25,6 +25,10 @@ class NfcManager {
   // _onError
   NfcErrorCallback? _onError;
 
+  Future<bool> openNfcSettings() async {
+    return channel.invokeMethod('Nfc#openSettings').then((value) => value!);
+  }
+
   /// Checks whether the NFC features are available.
   Future<bool> isAvailable() async {
     return channel.invokeMethod('Nfc#isAvailable').then((value) => value!);
@@ -41,7 +45,7 @@ class NfcManager {
   ///
   /// (iOS only) `alertMessage` is used to display the message on the popup shown when the session is started.
   ///
-  /// (iOS only) `invalidateAfterFirstRead` is used to specify whether the session should be invalidated 
+  /// (iOS only) `invalidateAfterFirstRead` is used to specify whether the session should be invalidated
   /// after the first tag is discovered. Default is true.
   ///
   /// (iOS only) `onError` is called when the session is stopped for some reason after the session has started.

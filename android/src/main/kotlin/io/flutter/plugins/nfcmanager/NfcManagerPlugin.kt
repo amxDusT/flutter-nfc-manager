@@ -14,6 +14,7 @@ import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
 import android.nfc.tech.TagTechnology
 import android.os.Build
+import android.content.Context
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -32,11 +33,12 @@ class NfcManagerPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var tags: MutableMap<String, Tag>
   private var adapter: NfcAdapter? = null
   private var connectedTech: TagTechnology? = null
-
+  private lateinit var context : Context
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(binding.binaryMessenger, "plugins.flutter.io/nfc_manager")
     channel.setMethodCallHandler(this)
     adapter = NfcAdapter.getDefaultAdapter(binding.applicationContext)
+    context = binding.applicationContext
     tags = mutableMapOf()
   }
 
@@ -62,6 +64,7 @@ class NfcManagerPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
+      "Nfc#openSettings" -> handleOpenSettings(call, result)
       "Nfc#isAvailable" -> handleNfcIsAvailable(call, result)
       "Nfc#startSession" -> handleNfcStartSession(call, result)
       "Nfc#stopSession" -> handleNfcStopSession(call, result)
@@ -95,7 +98,10 @@ class NfcManagerPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun handleNfcIsAvailable(call: MethodCall, result: Result) {
     result.success(adapter?.isEnabled == true)
   }
-
+  private fun handleOpenSettings(call: MethodCall, result: Result){
+    var opened = openNFCSettings(context)
+    result.success(opened)
+  }
   private fun handleNfcStartSession(call: MethodCall, result: Result) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
       result.error("unavailable", "Requires API level 19.", null)
